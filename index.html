@@ -4,41 +4,121 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Proyecto FIRA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>Proyecto FIRA</h1>
-    <nav>
-      <a href="#proyecto">Proyecto</a>
-      <a href="#equipo">Equipo</a>
-      <a href="#contacto">Contacto</a>
-    </nav>
+    <div class="head-inner">
+      <h1>Proyecto FIRA</h1>
+      <p>Predicción del rendimiento por parcela con índices satelitales y agroclimáticos.</p>
+      <div class="tabs" role="tablist" aria-label="Secciones">
+        <button class="tab" role="tab" id="t-ficha" aria-controls="ficha" aria-selected="true">Ficha técnica</button>
+        <button class="tab" role="tab" id="t-metricas" aria-controls="metricas" aria-selected="false">Métricas</button>
+        <button class="tab" role="tab" id="t-variables" aria-controls="variables" aria-selected="false">Variables clave</button>
+        <button class="tab" role="tab" id="t-graficas" aria-controls="graficas" aria-selected="false">Gráficas</button>
+      </div>
+    </div>
   </header>
 
   <main>
-    <section id="proyecto">
-      <h2>Sobre el proyecto</h2>
-      <p>Aquí va la descripción de tu proyecto: qué hace, qué problema resuelve y cómo está hecho.</p>
+    <section class="panel" id="ficha" role="tabpanel" aria-labelledby="t-ficha">
+      <h2>Ficha técnica del modelo</h2>
+      <p class="lead">Datos de ejecución del experimento.</p>
+      <dl class="spec">
+        <div><dt>Variable objetivo</dt><dd><code>RENDIMIENTO_T_HA</code> (toneladas por hectárea)</dd></div>
+        <div><dt>Identificador de parcela</dt><dd><code>ID_POLIGONO</code></dd></div>
+        <div><dt>Validación</dt><dd>1,000 corridas con validación cruzada de 5 folds</dd></div>
+        <div><dt>Métodos probados</dt><dd>LASSO, Random Forest, XGBoost, Mutual Information, SelectKBest y Correlación</dd></div>
+        <div><dt>Método ganador</dt><dd>LASSO</dd></div>
+      </dl>
+      <div class="verdict">
+        <h3>LASSO obtuvo el mejor desempeño de los 6 métodos</h3>
+        <p>Ver el detalle en la pestaña Métricas.</p>
+      </div>
     </section>
 
-    <section id="equipo">
-      <h2>Equipo</h2>
-      <ul>
-        <li>Integrante 1</li>
-        <li>Integrante 2</li>
-        <li>Integrante 3</li>
+    <section class="panel" id="metricas" role="tabpanel" aria-labelledby="t-metricas" hidden>
+      <h2>Métricas del modelo ganador (LASSO)</h2>
+      <p class="lead">Precisión promedio de LASSO frente a los demás algoritmos.</p>
+      <div class="strip">
+        <div><span>R² medio</span><strong>0.5644</strong></div>
+        <div><span>RMSE medio</span><strong>0.5435</strong><small>ton/ha</small></div>
+        <div><span>MAE medio</span><strong>0.4054</strong><small>ton/ha</small></div>
+        <div><span>MAPE medio</span><strong>11.49%</strong></div>
+        <div><span>Correlación media</span><strong>0.7691</strong></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Método</th><th>R²</th><th>RMSE (t/ha)</th><th>MAE (t/ha)</th><th>MAPE</th></tr></thead>
+          <tbody>
+            <tr class="best"><td>LASSO</td><td>0.5644</td><td>0.5435</td><td>0.4054</td><td>11.49%</td></tr>
+            <tr><td>Random Forest</td><td>0.5114</td><td>0.5754</td><td>0.4345</td><td>12.31%</td></tr>
+            <tr><td>XGBoost</td><td>0.5112</td><td>0.5754</td><td>0.4212</td><td>12.00%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="variables" role="tabpanel" aria-labelledby="t-variables" hidden>
+      <h2>Las 15 variables clave</h2>
+      <p class="lead">Índices satelitales y agroclimáticos más importantes para el modelo LASSO.</p>
+      <ul class="vars">
+        <li><code>ndsvi_min_m12</code></li>
+        <li><code>vi6t_min_m08</code></li>
+        <li><code>sti_min_m06</code></li>
+        <li><code>dswi4_min_m10</code></li>
+        <li><code>nddi_std_m12</code></li>
+        <li><code>lai_std_m12</code></li>
+        <li><code>savi_max_m08</code></li>
+        <li><code>variable_08</code></li>
+        <li><code>variable_09</code></li>
+        <li><code>variable_10</code></li>
+        <li><code>variable_11</code></li>
+        <li><code>variable_12</code></li>
+        <li><code>variable_13</code></li>
+        <li><code>variable_14</code></li>
+        <li><code>variable_15</code></li>
       </ul>
+      <p class="note">Nombres: índice, estadístico (min, max, std) y mes (m06 = junio). Reemplaza <code>variable_08</code> a <code>variable_15</code> con los nombres reales.</p>
     </section>
 
-    <section id="contacto">
-      <h2>Contacto</h2>
-      <p>correo@ejemplo.com</p>
+    <section class="panel" id="graficas" role="tabpanel" aria-labelledby="t-graficas" hidden>
+      <h2>Resultados y estabilidad</h2>
+      <p class="lead">Desempeño del modelo y su consistencia a lo largo de las corridas.</p>
+      <figure>
+        <img src="images/rendimiento_real_vs_predicho.png" alt="Gráfica de rendimiento real contra predicho en toneladas por hectárea">
+        <figcaption>Rendimiento real vs. predicho (t/ha)</figcaption>
+      </figure>
+      <figure>
+        <img src="images/estabilidad_r2.png" alt="Gráfica de estabilidad del R² a lo largo de 1,000 corridas">
+        <figcaption>Estabilidad del modelo: R² en las 1,000 corridas</figcaption>
+      </figure>
     </section>
   </main>
 
-  <footer>
-    <p>&copy; 2026 Proyecto FIRA</p>
-  </footer>
+  <footer><p>&copy; 2026 Proyecto FIRA</p></footer>
+
+  <script>
+    const tabs = [...document.querySelectorAll('.tab')];
+    function show(tab) {
+      tabs.forEach(t => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', on);
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+      });
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => show(t));
+      t.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+          n.focus(); show(n);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
