@@ -1,124 +1,251 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proyecto FIRA</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgroCebada FIRA 2026 · Rendimiento de cebada desde el espacio</title>
+<meta name="description" content="Estimación del rendimiento de cebada por parcela con imágenes satelitales, clima y topografía. Reto AgroCebada FIRA 2026.">
+<link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
-  <header>
-    <div class="head-inner">
-      <h1>Proyecto FIRA</h1>
-      <p>Predicción del rendimiento por parcela con índices satelitales y agroclimáticos.</p>
-      <div class="tabs" role="tablist" aria-label="Secciones">
-        <button class="tab" role="tab" id="t-ficha" aria-controls="ficha" aria-selected="true">Ficha técnica</button>
-        <button class="tab" role="tab" id="t-metricas" aria-controls="metricas" aria-selected="false">Métricas</button>
-        <button class="tab" role="tab" id="t-variables" aria-controls="variables" aria-selected="false">Variables clave</button>
-        <button class="tab" role="tab" id="t-graficas" aria-controls="graficas" aria-selected="false">Gráficas</button>
+
+<nav class="top" id="nav">
+  <div class="wrap">
+    <a href="#inicio">Inicio</a>
+    <a href="#ficha">Ficha técnica</a>
+    <a href="#metodologia">Metodología</a>
+    <a href="#metricas">Métricas</a>
+    <a href="#variable-clave">Variable clave</a>
+    <a href="#graficas">Gráficas</a>
+    <a href="#parcelas">Parcelas</a>
+    <a href="#aplicacion">Aplicación</a>
+    <a href="#limites">Límites</a>
+    <a href="#descargas">Descargas</a>
+  </div>
+</nav>
+
+<header class="portada" id="inicio">
+  <div class="wrap">
+    <span class="sello">Reto AgroCebada FIRA 2026</span>
+    <h1>Cuánta cebada dará una parcela, estimado desde el espacio</h1>
+    <p class="lead">Proyecto que estima el rendimiento de parcelas de cebada en Puebla, Hidalgo y Tlaxcala a partir de imágenes de satélite, clima y relieve. El resultado se expresa en toneladas por hectárea y se acompaña del error típico que puede esperarse.</p>
+    <div class="cifras">
+      <div class="cifra"><div class="n">197</div><div class="t">parcelas en nueve municipios</div></div>
+      <div class="cifra"><div class="n" id="cf-err">—</div><div class="t">toneladas por hectárea de error típico</div></div>
+      <div class="cifra"><div class="n" id="cf-mape">—</div><div class="t">de desviación media frente al rendimiento real</div></div>
+      <div class="cifra"><div class="n">15</div><div class="t">variables satelitales bastan para estimar</div></div>
+    </div>
+    <div class="cinta" id="cinta"></div>
+    <div class="cinta-nota">Cada mes del año es observado por satélite; en verde, el ciclo productivo evaluado (abril a octubre de 2025).</div>
+  </div>
+</header>
+
+<main>
+
+<section class="bloque" id="ficha">
+  <div class="wrap">
+    <div class="cab"><span class="num">01</span><h2>Ficha técnica</h2></div>
+    <p class="intro">Resumen de las características del estudio, del tipo de datos empleados y de la configuración del modelo.</p>
+    <div class="tarjeta">
+      <div class="ficha" id="ficha-grid"></div>
+    </div>
+  </div>
+</section>
+
+<section class="bloque" id="metodologia">
+  <div class="wrap">
+    <div class="cab"><span class="num">02</span><h2>Metodología</h2></div>
+    <p class="intro">El procedimiento va desde la recopilación de imágenes hasta la estimación de las parcelas sin rendimiento conocido. Cada paso puede consultarse por separado.</p>
+
+    <figure class="meto" id="fig-meto">
+      <img src="img/metodologia.png" alt="Esquema de la metodología" id="img-meto" onerror="this.parentNode.style.display='none';document.getElementById('hueco-meto').style.display='block'">
+    </figure>
+    <div class="hueco" id="hueco-meto" style="display:none;margin-bottom:18px">
+      <b>Espacio reservado para la imagen de la metodología</b><br>
+      Basta guardar el archivo como <code>img/metodologia.png</code>; se mostrará aquí de forma automática.
+    </div>
+
+    <div class="riel" id="riel"></div>
+    <div class="tarjeta panel-paso" id="panel-paso"></div>
+  </div>
+</section>
+
+<section class="bloque" id="metricas">
+  <div class="wrap">
+    <div class="cab"><span class="num">03</span><h2>Métricas de desempeño</h2></div>
+    <p class="intro">Para medir qué tan bien estima el modelo, se repitió 1,000 veces una validación cruzada de cinco particiones: en cada una, el modelo estima parcelas que no vio al entrenarse. Cifras de la variante ganadora, con LASSO como selector de variables.</p>
+
+    <div class="rejilla g3" id="kpis"></div>
+
+    <div class="rejilla g2" style="margin-top:16px">
+      <div class="tarjeta">
+        <h3 style="margin-bottom:10px">Comparación de los seis selectores</h3>
+        <div class="pestanas" id="tabs-metrica"></div>
+        <div id="barras-metodo"></div>
+        <p class="nota" id="nota-metrica" style="margin-top:12px"></p>
+      </div>
+      <div class="tarjeta">
+        <h3 style="margin-bottom:6px">¿Qué margen de error implica una estimación?</h3>
+        <p class="nota">Se elige un rendimiento estimado y se observa el margen típico alrededor de él.</p>
+        <div class="etiqueta" style="margin-top:12px">Rendimiento estimado</div>
+        <div class="gran-num"><span id="sim-val">3.9</span> <span style="font-size:1rem">t/ha</span></div>
+        <input type="range" class="deslizador" id="sim-rango" min="2.5" max="5" step="0.05" value="3.9">
+        <div class="rango-vis" id="sim-vis"><div class="banda" id="sim-banda"></div><div class="pto" id="sim-pto"></div></div>
+        <div class="rango-ej"><span>2.0</span><span>3.0</span><span>4.0</span><span>5.0</span><span>6.0</span></div>
+        <p id="sim-txt" style="margin-top:14px"></p>
       </div>
     </div>
-  </header>
 
-  <main>
-    <section class="panel" id="ficha" role="tabpanel" aria-labelledby="t-ficha">
-      <h2>Ficha técnica del modelo</h2>
-      <p class="lead">Datos de ejecución del experimento.</p>
-      <dl class="spec">
-        <div><dt>Variable objetivo</dt><dd><code>RENDIMIENTO_T_HA</code> (toneladas por hectárea)</dd></div>
-        <div><dt>Identificador de parcela</dt><dd><code>ID_POLIGONO</code></dd></div>
-        <div><dt>Validación</dt><dd>1,000 corridas con validación cruzada de 5 folds</dd></div>
-        <div><dt>Métodos probados</dt><dd>LASSO, Random Forest, XGBoost, Mutual Information, SelectKBest y Correlación</dd></div>
-        <div><dt>Método ganador</dt><dd>LASSO</dd></div>
-      </dl>
-      <div class="verdict">
-        <h3>LASSO obtuvo el mejor desempeño de los 6 métodos</h3>
-        <p>Ver el detalle en la pestaña Métricas.</p>
+    <details class="plegable">
+      <summary>Ver tabla completa de métricas por método</summary>
+      <div class="tarjeta scroll-x" style="margin-top:10px"><table class="t" id="tabla-completa"></table></div>
+    </details>
+  </div>
+</section>
+
+<section class="bloque" id="variable-clave">
+  <div class="wrap">
+    <div class="cab"><span class="num">04</span><h2>Variable clave</h2></div>
+    <p class="intro">De más de mil variables candidatas por parcela, cada selector eligió quince. Al comparar las seis listas aparece qué señales del cultivo se repiten y en qué momento del año.</p>
+
+    <div class="destacado" id="clave-dest"></div>
+
+    <div class="rejilla g2" style="margin-top:16px">
+      <div class="tarjeta">
+        <h3 style="margin-bottom:4px">El mes que más pesa</h3>
+        <p class="nota">Cada columna es un mes; su altura indica cuántas variables elegidas provienen de él. Al tocar un mes se listan.</p>
+        <div class="meses" id="meses"></div>
+        <div id="mes-detalle" style="margin-top:12px"></div>
       </div>
-    </section>
-
-    <section class="panel" id="metricas" role="tabpanel" aria-labelledby="t-metricas" hidden>
-      <h2>Métricas del modelo ganador (LASSO)</h2>
-      <p class="lead">Precisión promedio de LASSO frente a los demás algoritmos.</p>
-      <div class="strip">
-        <div><span>R² medio</span><strong>0.5644</strong></div>
-        <div><span>RMSE medio</span><strong>0.5435</strong><small>ton/ha</small></div>
-        <div><span>MAE medio</span><strong>0.4054</strong><small>ton/ha</small></div>
-        <div><span>MAPE medio</span><strong>11.49%</strong></div>
-        <div><span>Correlación media</span><strong>0.7691</strong></div>
+      <div class="tarjeta">
+        <h3 style="margin-bottom:4px">Qué índices usa el modelo</h3>
+        <p class="nota">Cada índice resume la luz que refleja el cultivo o el suelo. Al tocar uno se explica su significado.</p>
+        <div id="indices"></div>
+        <div id="indice-detalle" class="nota" style="margin-top:10px;min-height:44px"></div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Método</th><th>R²</th><th>RMSE (t/ha)</th><th>MAE (t/ha)</th><th>MAPE</th></tr></thead>
-          <tbody>
-            <tr class="best"><td>LASSO</td><td>0.5644</td><td>0.5435</td><td>0.4054</td><td>11.49%</td></tr>
-            <tr><td>Random Forest</td><td>0.5114</td><td>0.5754</td><td>0.4345</td><td>12.31%</td></tr>
-            <tr><td>XGBoost</td><td>0.5112</td><td>0.5754</td><td>0.4212</td><td>12.00%</td></tr>
-          </tbody>
-        </table>
+    </div>
+
+    <div class="tarjeta" style="margin-top:16px">
+      <h3 style="margin-bottom:4px">Coincidencias entre selectores</h3>
+      <p class="nota">Cada fila es una variable; cada columna, un selector. Las variables de arriba son las que más selectores eligieron de forma independiente.</p>
+      <div class="matriz" id="matriz"></div>
+    </div>
+  </div>
+</section>
+
+<section class="bloque" id="graficas">
+  <div class="wrap">
+    <div class="cab"><span class="num">05</span><h2>Gráficas de resultados</h2></div>
+    <p class="intro">Las 1,000 repeticiones permiten ver no solo el resultado promedio, sino también cuánto varía y si es estable. Cada gráfica incluye una breve guía de lectura.</p>
+    <div class="tarjeta">
+      <div class="pestanas" id="tabs-graf"></div>
+      <div class="leyenda" id="leyenda"></div>
+      <div class="graf" id="graf"></div>
+      <div class="grafica-nota" id="graf-nota"></div>
+    </div>
+  </div>
+</section>
+
+<section class="bloque" id="parcelas">
+  <div class="wrap">
+    <div class="cab"><span class="num">06</span><h2>Buscador de parcelas</h2></div>
+    <p class="intro">Consulta de las 59 parcelas sin rendimiento conocido, cuya producción fue estimada por el modelo. Se puede buscar por identificador, ordenar y filtrar por nivel de rendimiento esperado.</p>
+
+    <div class="tarjeta" style="margin-bottom:16px">
+      <div class="etiqueta">Las 59 parcelas ordenadas por rendimiento estimado (cada punto es una parcela)</div>
+      <div class="graf" id="tira"></div>
+    </div>
+
+    <div class="buscador">
+      <div>
+        <input type="search" id="q" placeholder="Buscar identificador, p. ej. AGC_011" autocomplete="off">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <select id="orden">
+            <option value="id">Orden: identificador</option>
+            <option value="pred-d">Mayor rendimiento</option>
+            <option value="pred-a">Menor rendimiento</option>
+            <option value="area-d">Mayor superficie</option>
+          </select>
+          <select id="nivel">
+            <option value="todos">Todos los niveles</option>
+            <option value="alto">Rendimiento alto</option>
+            <option value="medio">Rendimiento medio</option>
+            <option value="bajo">Rendimiento bajo</option>
+          </select>
+        </div>
+        <div class="lista" id="lista"></div>
+        <div class="nota" id="cuenta" style="margin-top:6px"></div>
       </div>
-    </section>
+      <div class="tarjeta" id="ficha-parcela"><div class="vacio">Selecciona una parcela de la lista o un punto de la gráfica para ver su ficha.</div></div>
+    </div>
+  </div>
+</section>
 
-    <section class="panel" id="variables" role="tabpanel" aria-labelledby="t-variables" hidden>
-      <h2>Las 15 variables clave</h2>
-      <p class="lead">Índices satelitales y agroclimáticos más importantes para el modelo LASSO.</p>
-      <ul class="vars">
-        <li><code>ndsvi_min_m12</code></li>
-        <li><code>vi6t_min_m08</code></li>
-        <li><code>sti_min_m06</code></li>
-        <li><code>dswi4_min_m10</code></li>
-        <li><code>nddi_std_m12</code></li>
-        <li><code>lai_std_m12</code></li>
-        <li><code>savi_max_m08</code></li>
-        <li><code>variable_08</code></li>
-        <li><code>variable_09</code></li>
-        <li><code>variable_10</code></li>
-        <li><code>variable_11</code></li>
-        <li><code>variable_12</code></li>
-        <li><code>variable_13</code></li>
-        <li><code>variable_14</code></li>
-        <li><code>variable_15</code></li>
-      </ul>
-      <p class="note">Nombres: índice, estadístico (min, max, std) y mes (m06 = junio). Reemplaza <code>variable_08</code> a <code>variable_15</code> con los nombres reales.</p>
-    </section>
+<section class="bloque" id="aplicacion">
+  <div class="wrap">
+    <div class="cab"><span class="num">07</span><h2>Para qué sirve: crédito y productividad</h2></div>
+    <p class="intro">Estimar el rendimiento sin visita física abre una vía para evaluar la capacidad productiva de una parcela donde la información escasea.</p>
+    <div class="rejilla g2">
+      <div class="tarjeta">
+        <h3 style="margin-bottom:8px">Acceso al crédito en el campo</h3>
+        <div class="puntos100" id="p100"></div>
+        <p class="nota" style="margin-top:10px">De 4,440,265 unidades de producción agropecuaria activas en 2022, 265,508 tenían crédito: cerca de 6 de cada 100 (INEGI, 2023).</p>
+      </div>
+      <div class="tarjeta">
+        <h3 style="margin-bottom:8px">Barreras que la información satelital ayuda a reducir</h3>
+        <p>La comprobación de ingresos, los costos de originación y supervisión, y los mayores riesgos por variabilidad climática y falta de información figuran entre las principales barreras (FIRA, 2025).</p>
+        <p>Una estimación de rendimiento por parcela, obtenida a distancia, aporta un dato objetivo sobre la capacidad productiva y, de forma indirecta, sobre la fuente de pago.</p>
+        <p class="nota">Esta línea de trabajo es afín a plataformas como Agritech Nexus, lanzada por FIRA en 2025 para monitorear remotamente el desempeño de los predios.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <section class="panel" id="graficas" role="tabpanel" aria-labelledby="t-graficas" hidden>
-      <h2>Resultados y estabilidad</h2>
-      <p class="lead">Desempeño del modelo y su consistencia a lo largo de las corridas.</p>
-      <figure>
-        <img src="images/rendimiento_real_vs_predicho.png" alt="Gráfica de rendimiento real contra predicho en toneladas por hectárea">
-        <figcaption>Rendimiento real vs. predicho (t/ha)</figcaption>
-      </figure>
-      <figure>
-        <img src="images/estabilidad_r2.png" alt="Gráfica de estabilidad del R² a lo largo de 1,000 corridas">
-        <figcaption>Estabilidad del modelo: R² en las 1,000 corridas</figcaption>
-      </figure>
-    </section>
-  </main>
+<section class="bloque" id="limites">
+  <div class="wrap">
+    <div class="cab"><span class="num">08</span><h2>Límites y lectura responsable</h2></div>
+    <p class="intro">Las estimaciones son una herramienta de apoyo. Estas son las condiciones que conviene tener presentes al interpretarlas.</p>
+    <div class="rejilla g3" id="limites-grid"></div>
+  </div>
+</section>
 
-  <footer><p>&copy; 2026 Proyecto FIRA</p></footer>
+<section class="bloque" id="descargas">
+  <div class="wrap">
+    <div class="cab"><span class="num">09</span><h2>Descargas, referencias y equipo</h2></div>
+    <p>
+      <a class="btn" href="descargas/estimaciones_59_parcelas.csv" download>Estimaciones de las 59 parcelas (CSV)</a>
+      <a class="btn sec" href="descargas/metricas_por_metodo.csv" download>Métricas por método (CSV)</a>
+      <a class="btn sec" href="descargas/graficas_resultados.pdf" download>Gráficas de resultados (PDF)</a>
+    </p>
+    <div class="rejilla g2" style="margin-top:12px">
+      <div class="tarjeta">
+        <h3 style="margin-bottom:8px">Equipo</h3>
+        <p>David Tinoco Ponce<br>Edwin David Cruz Perez<br>Emmanuel Montiel Mendieta<br>Idalia Natally Rodriguez Rugerio<br>Amaury</p>
+        <p class="nota">Apizaco, Tlaxcala · octubre de 2026</p>
+      </div>
+      <div class="tarjeta">
+        <h3 style="margin-bottom:8px">Referencias</h3>
+        <ol class="lista-ref">
+          <li>Iranzo, C., Montorio, R., &amp; García-Martín, A. (2022). Estimation of barley yield from Sentinel-1 and Sentinel-2 imagery and climatic variables. <i>Revista de Teledetección, 59</i>, 59–70.</li>
+          <li>Shawon, S. M., et al. (2025). Crop yield prediction using machine learning: An extensive and systematic literature review. <i>Smart Agricultural Technology, 10</i>, 100718.</li>
+          <li>Fernandez Vidal, M., &amp; Bull, P. (2019). <i>Using satellite data in financial inclusion</i>. CGAP.</li>
+          <li>FIRA (2024). Convocatoria a la investigación sobre inclusión financiera, productividad y sostenibilidad agrícola.</li>
+          <li>FIRA (2025). Anuncia FIRA lanzamiento de Agritech Nexus.</li>
+          <li>INEGI (2023). Censo Agropecuario 2022: resultados oportunos.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <script>
-    const tabs = [...document.querySelectorAll('.tab')];
-    function show(tab) {
-      tabs.forEach(t => {
-        const on = t === tab;
-        t.setAttribute('aria-selected', on);
-        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
-      });
-    }
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => show(t));
-      t.addEventListener('keydown', e => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-          const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
-          n.focus(); show(n);
-        }
-      });
-    });
-  </script>
+</main>
+
+<footer class="pie">
+  <div class="wrap">Fideicomisos Instituidos en Relación con la Agricultura · Reto AgroCebada FIRA 2026. Las estimaciones apoyan, pero no sustituyen, el análisis financiero ni la verificación en campo.</div>
+</footer>
+
+<div class="tip" id="tip"></div>
+<script src="js/datos.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

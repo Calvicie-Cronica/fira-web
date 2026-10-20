@@ -1,0 +1,2 @@
+Guardar aqui la imagen de la metodologia con el nombre metodologia.png.
+Al abrir la pagina se muestra de forma automatica en la seccion 02.
